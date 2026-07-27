@@ -1,0 +1,146 @@
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("admin_users")
+}
+
+model Project {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  shortDescription String   @map("short_description")
+  fullDescription  String   @map("full_description")
+  imageUrl         String?  @map("image_url")
+  imagePathname    String?  @map("image_pathname")
+  githubUrl        String   @default("") @map("github_url")
+  liveUrl          String?  @map("live_url")
+  techStack        String[] @map("tech_stack")
+  category         String?
+  status           String   @default("Completed")
+  featured         Boolean  @default(false)
+  content          String?
+  problemSolved    String   @default("") @map("problem_solved")
+  keyFeatures      String[] @map("key_features")
+  challenges       String   @default("") @map("challenges_text")
+  outcome          String   @default("")
+  role             String   @default("")
+  isComingSoon     Boolean  @default(false) @map("is_coming_soon")
+  screenLabel      String?  @map("screen_label")
+  isPinned         Boolean  @default(false) @map("is_pinned")
+  caseStudyFocus   String?  @map("case_study_focus")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  published        Boolean  @default(true)
+
+  @@index([slug])
+  @@index([featured])
+  @@index([published])
+  @@index([createdAt])
+  @@map("projects")
+}
+
+model Blog {
+  id                      String   @id @default(cuid())
+  title                   String
+  slug                    String   @unique
+  excerpt                 String   @default("")
+  content                 String   @default("")
+  category                String   @default("Engineering")
+  tags                    String[]
+  published               Boolean  @default(true)
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+  featured                Boolean  @default(false)
+  date                    String   @default("")
+  improvements            String[]
+  level                   String   @default("Intermediate")
+  readTime                Int      @default(5) @map("read_time")
+  relatedNoteSlugs        String[] @map("related_note_slugs")
+  relatedProjectSlug      String?  @map("related_project_slug")
+  relatedSystemDesignSlug String?  @map("related_system_design_slug")
+  subtitle                String   @default("")
+  whatILearned            String[] @map("what_i_learned")
+
+  @@index([slug])
+  @@index([published])
+  @@index([featured])
+  @@index([createdAt])
+  @@map("blogs")
+}
+
+model Certification {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  issuer        String
+  issueDate     String   @map("issue_date")
+  credentialUrl String   @default("#") @map("credential_url")
+  imageUrl      String?  @map("image_url")
+  imagePathname String?  @map("image_pathname")
+  description   String
+  keyTopics     String[] @map("key_topics")
+  whatILearned  String   @default("") @map("what_i_learned")
+  whyItMatters  String   @default("") @map("why_it_matters")
+  skills        String[]
+  takeaway      String   @default("")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  featured      Boolean  @default(false)
+  published     Boolean  @default(true)
+
+  @@index([slug])
+  @@index([published])
+  @@index([featured])
+  @@index([createdAt])
+  @@map("certifications")
+}
+
+model Experience {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  company       String
+  role          String
+  type          String   @default("Full-time")
+  location      String
+  period        String
+  startDate     String   @map("start_date")
+  endDate       String   @map("end_date")
+  summary       String
+  imageUrl      String?  @map("image_url")
+  imagePathname String?  @map("image_pathname")
+  achievements  String[]
+  tags          String[]
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  featured      Boolean  @default(false)
+  published     Boolean  @default(true)
+
+  @@index([slug])
+  @@index([published])
+  @@index([featured])
+  @@index([createdAt])
+  @@map("experiences")
+}
+
+model ViewCount {
+  id        String   @id @default(cuid())
+  route     String   @unique
+  count     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([route])
+  @@map("view_counts")
+}

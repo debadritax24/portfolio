@@ -1,0 +1,293 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  fetchGitHubContributions,
+  normalizeContributionData,
+} from "@/services/github";
+import { siteConfig } from "@/config/site";
+import type {
+  ContributionData,
+  ContributionDay,
+  ContributionWeek,
+} from "@/types/github";
+
+const scheduleIdle = (callback: () => void) => {
+  if (typeof window === "undefined") return 0;
+  const idleWindow = window as Window & {
+    requestIdleCallback?: (
+      cb: IdleRequestCallback,
+      options?: IdleRequestOptions
+    ) => number;
+  };
+  if (idleWindow.requestIdleCallback) {
+    return idleWindow.requestIdleCallback(() => callback(), { timeout: 1500 });
+  }
+  return window.setTimeout(callback, 200);
+};
+
+const cancelIdle = (id: number) => {
+  if (typeof window === "undefined") return;
+  const idleWindow = window as Window & {
+    cancelIdleCallback?: (handle: number) => void;
+  };
+  if (idleWindow.cancelIdleCallback) {
+    idleWindow.cancelIdleCallback(id);
+  } else {
+    clearTimeout(id);
+  }
+};
+
+export default function ContributionGraph() {
+  const [contributionData, setContributionData] = useState<ContributionData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [hoveredDay, setHoveredDay] = useState<{ x: number; y: number; content: string } | null>(null);
+  const graphRef = useRef<HTMLDivElement | null>(null);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
+
+  const formatDateForTooltip = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+  const handleMouseEnter = (event: React.MouseEvent, day: ContributionDay) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const graphRect = graphRef.current?.getBoundingClientRect();
+    const content =
+      day.contributionCount === 0
+        ? `No contributions on ${formatDateForTooltip(day.date)}`
+        : `${day.contributionCount} contribution${day.contributionCount !== 1 ? "s" : ""} on ${formatDateForTooltip(day.date)}`;
+    if (!graphRect) return;
+    setHoveredDay({
+      x: rect.left + rect.width / 2 - graphRect.left,
+      y: rect.top - graphRect.top - 8,
+      content,
+    });
+  };
+
+  const handleMouseLeave = () => setHoveredDay(null);
+
+  // Adjust tooltip position to keep it within viewport bounds
+  useEffect(() => {
+    if (!hoveredDay || !tooltipRef.current || !graphRef.current) return;
+
+    const tooltip = tooltipRef.current;
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const graphRect = graphRef.current.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+
+    // Calculate the default centered position
+    let translateX = -50;
+
+    // Check if tooltip would overflow on the left
+    const tooltipLeft = hoveredDay.x + graphRect.left - tooltipRect.width / 2;
+    if (tooltipLeft < 8) {
+      // Adjust to keep 8px padding from left edge
+      const offset = 8 - tooltipLeft;
+      translateX = -50 + (offset / tooltipRect.width * 100);
+    }
+
+    // Check if tooltip would overflow on the right
+    const tooltipRight = hoveredDay.x + graphRect.left + tooltipRect.width / 2;
+    if (tooltipRight > viewportWidth - 8) {
+      // Adjust to keep 8px padding from right edge
+      const overflow = tooltipRight - (viewportWidth - 8);
+      translateX = -50 - (overflow / tooltipRect.width * 100);
+    }
+
+    tooltip.style.transform = `translateX(${translateX}%) translateY(-100%)`;
+  }, [hoveredDay]);
+
+  const getMonthLabels = () => {
+    if (!contributionData || !contributionData.weeks.length) return null;
+
+    const months: { [key: number]: string } = {
+      0: "Jan",
+      1: "Feb",
+      2: "Mar",
+      3: "Apr",
+      4: "May",
+      5: "Jun",
+      6: "Jul",
+      7: "Aug",
+      8: "Sep",
+      9: "Oct",
+      10: "Nov",
+      11: "Dec",
+    };
+
+    let lastLabelX = -100; // Track last label's X position to prevent overlap
+
+    return (
+      <div className="relative h-4 mb-1">
+        {contributionData.weeks.map((week, i) => {
+          const firstDay = week.contributionDays[0];
+          if (!firstDay) return null;
+          const monthIndex = new Date(firstDay.date).getMonth();
+
+          const isMonthTransition =
+            i > 0 &&
+            new Date(contributionData.weeks[i - 1].contributionDays[0].date).getMonth() !==
+            monthIndex;
+
+          let shouldShow = false;
+          if (isMonthTransition) {
+            shouldShow = true;
+          } else if (i === 0) {
+            // Only show the first month if it's the actual start of the month
+            // or if the next month is at least 3 weeks away
+            const nextMonthIndex = contributionData.weeks.findIndex(
+              (w, idx) =>
+                idx > 0 && new Date(w.contributionDays[0].date).getMonth() !== monthIndex
+            );
+            if (nextMonthIndex === -1 || nextMonthIndex > 2) {
+              shouldShow = true;
+            }
+          }
+
+          if (shouldShow) {
+            const xPos = i * 12;
+            if (xPos - lastLabelX >= 24) {
+              lastLabelX = xPos;
+              return (
+                <div
+                  key={i}
+                  className="absolute text-[10px] font-mono text-slate-700 dark:text-slate-300 opacity-100 dark:opacity-70 whitespace-nowrap"
+                  style={{ left: `${xPos}px` }}
+                >
+                  {months[monthIndex]}
+                </div>
+              );
+            }
+          }
+          return null;
+        })}
+      </div>
+    );
+  };
+
+
+  const getContributionIntensity = (count: number, maxCount: number) => {
+    if (count === 0) return "bg-[#ebedf0] dark:bg-[#161b22] border-none";
+
+    const effectiveMax = Math.max(7, Math.min(maxCount, 15));
+    const ratio = count / effectiveMax;
+
+    if (ratio <= 0.25) return "bg-[#9be9a8] dark:bg-[#0e4429] border-none";
+    if (ratio <= 0.5) return "bg-[#40c463] dark:bg-[#006d32] border-none";
+    if (ratio <= 0.75) return "bg-[#30a14e] dark:bg-[#26a641] border-none";
+    return "bg-[#216e39] dark:bg-[#39d353] border-none";
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const idleId = scheduleIdle(() => {
+      if (!isMounted) return;
+
+      const loadContributions = async () => {
+        try {
+          const username = siteConfig.socialLinks.github.split("/").pop() || "debagoswami83";
+          const raw = await fetchGitHubContributions(username);
+          if (!isMounted) return;
+          setContributionData(normalizeContributionData(raw));
+        } catch (err) {
+          console.error(err);
+          if (isMounted) setError("Failed to load GitHub contributions.");
+        } finally {
+          if (isMounted) {
+            setLoading(false);
+          }
+        }
+      };
+
+      loadContributions();
+    });
+
+    return () => {
+      isMounted = false;
+      cancelIdle(idleId);
+    };
+  }, []);
+
+  return (
+    <div className="w-full">
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <span className="text-xs text-slate-500 dark:text-slate-600">Loading contributions...</span>
+        </div>
+      ) : error ? (
+        <div className="flex items-center justify-center py-8 text-center px-4">
+          <span className="text-xs text-red-500 dark:text-red-400">{error}</span>
+        </div>
+      ) : contributionData ? (
+        <div ref={graphRef} className="relative">
+          <div className="overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:px-0">
+            <div className="w-max min-w-full">
+              {getMonthLabels()}
+
+              <div className="flex gap-[2px]">
+                {(() => {
+                  const maxCount = Math.max(
+                    ...contributionData.weeks.flatMap((w) =>
+                      w.contributionDays.map((d) => d.contributionCount)
+                    ),
+                    0
+                  );
+
+                  return contributionData.weeks.map((week, wi) => (
+                    <div key={wi} className="flex flex-col gap-[2px]">
+                      {week.contributionDays.map((day, di) => (
+                        <div
+                          key={di}
+                          className={`w-[10px] h-[10px] rounded-[2px] ${getContributionIntensity(
+                            day.contributionCount,
+                            maxCount
+                          )} hover:ring-1 hover:ring-slate-400 dark:hover:ring-white transition-all cursor-pointer`}
+                          onMouseEnter={(e) => handleMouseEnter(e, day)}
+                          onMouseLeave={handleMouseLeave}
+                        />
+                      ))}
+                    </div>
+                  ));
+                })()}
+              </div>
+            </div>
+          </div>
+
+          {hoveredDay && (
+            <div
+              ref={tooltipRef}
+              className="absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 border border-gray-700 rounded shadow-lg pointer-events-none whitespace-nowrap"
+              style={{
+                left: `${hoveredDay.x}px`,
+                top: `${hoveredDay.y}px`,
+                transform: "translateX(-50%) translateY(-100%)",
+              }}
+            >
+              {hoveredDay.content}
+            </div>
+          )}
+
+          <div className="flex justify-end items-center mt-3">
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-600 dark:text-slate-500">
+              <span>Less</span>
+              <div className="flex gap-[3px]">
+                <div className="w-2.5 h-2.5 bg-[#ebedf0] dark:bg-[#161b22] rounded-[2px]" />
+                <div className="w-2.5 h-2.5 bg-[#9be9a8] dark:bg-[#0e4429] rounded-[2px]" />
+                <div className="w-2.5 h-2.5 bg-[#40c463] dark:bg-[#006d32] rounded-[2px]" />
+                <div className="w-2.5 h-2.5 bg-[#30a14e] dark:bg-[#26a641] rounded-[2px]" />
+                <div className="w-2.5 h-2.5 bg-[#216e39] dark:bg-[#39d353] rounded-[2px]" />
+              </div>
+              <span>More</span>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}

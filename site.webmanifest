@@ -1,0 +1,37 @@
+{
+  "name": "Debadrita Goswami | Developer Portfolio",
+  "short_name": "Debadrita",
+  "description": "Developer portfolio of Debadrita Goswami - Full Stack Developer",
+  "start_url": "/",
+  "display": "standalone",
+  "background": "#000000",
+  "theme": "#000000",
+  "orientation": "any",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["technology", "portfolio", "developer"],
+  "icons": [
+    {
+      "src": "/cutie.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/cutie.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://www.debagoswami.tech/og.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Debadrita Goswami Developer Portfolio"
+    }
+  ]
+}

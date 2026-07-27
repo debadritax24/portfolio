@@ -1,0 +1,16 @@
+{
+  "name": "Debadrita Goswami",
+  "short_name": "Debadrita",
+  "description": "Developer Portfolio of Debadrita Goswami",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/cutie.webp",
+      "sizes": "192x192 512x512",
+      "type": "image/webp"
+    }
+  ]
+}
