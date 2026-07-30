@@ -191,7 +191,8 @@ export default function ContributionGraph() {
 
       const loadContributions = async () => {
         try {
-          const username = siteConfig.socialLinks.github.split("/").pop() || "debagoswami83";
+          const username = siteConfig.socialLinks.github.split("/").filter(Boolean).pop();
+          if (!username) throw new Error("GitHub username not configured");
           const raw = await fetchGitHubContributions(username);
           if (!isMounted) return;
           setContributionData(normalizeContributionData(raw));

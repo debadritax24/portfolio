@@ -10,17 +10,19 @@ import { siteConfig } from "@/config/site";
 
 export default function GitHubStats() {
   const [stats, setStats] = useState({
-    contributions: "...",
-    streak: "...",
-    repos: "...",
-    topLanguage: "..."
+    contributions: "",
+    streak: "",
+    repos: "",
+    topLanguage: ""
   });
 
   useEffect(() => {
     let isMounted = true;
     async function loadStats() {
       try {
-        const username = siteConfig.socialLinks.github.split("/").pop() || "debagoswami83";
+        const username = siteConfig.socialLinks.github.split("/").filter(Boolean).pop();
+        if (!username) throw new Error("GitHub username not configured");
+
         const contribs = await fetchGitHubContributions(username);
 
         let streak = 0;
@@ -37,13 +39,15 @@ export default function GitHubStats() {
           }
         }
 
-        let reposCount = "42";
+        let reposCount = "";
         try {
           const user = await fetchGitHubUser(username);
-          reposCount = user.public_repos?.toString() || "42";
-        } catch { }
+          reposCount = user.public_repos?.toString() || "";
+        } catch (err) {
+          console.error("Failed to fetch repo count:", err);
+        }
 
-        let topLang = "TypeScript";
+        let topLang = "";
         try {
           const repos = await fetchGitHubRepos(username);
           const langs: Record<string, number> = {};
@@ -52,30 +56,33 @@ export default function GitHubStats() {
               langs[r.language] = (langs[r.language] || 0) + 1;
             }
           });
-            let maxCount = 0;
-            for (const [lang, count] of Object.entries(langs)) {
-              if (count > maxCount) {
-                maxCount = count;
-                topLang = lang;
-              }
+          let maxCount = 0;
+          for (const [lang, count] of Object.entries(langs)) {
+            if (count > maxCount) {
+              maxCount = count;
+              topLang = lang;
             }
-        } catch { }
+          }
+        } catch (err) {
+          console.error("Failed to fetch top language:", err);
+        }
 
         if (isMounted) {
           setStats({
-            contributions: contribs?.totalContributions?.toLocaleString() || "1,975",
+            contributions: contribs?.totalContributions?.toLocaleString() || "",
             streak: `${streak}`,
             repos: reposCount,
             topLanguage: topLang
           });
         }
       } catch (error) {
+        console.error("Failed to load GitHub stats:", error);
         if (isMounted) {
           setStats({
-            contributions: "-",
-            streak: "-",
-            repos: "-",
-            topLanguage: "N/A"
+            contributions: "",
+            streak: "",
+            repos: "",
+            topLanguage: ""
           });
         }
       }
