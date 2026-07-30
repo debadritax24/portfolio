@@ -3,7 +3,7 @@ export const siteConfig = {
   shortName: "Debadrita",
   title: "Developer",
   description:
-    "2nd Year CS Engineering Student at Kolkata, West Bengal. I build projects, contribute to open source, and write about what I learn.",
+    "2nd Year CS Engineering Student at Kolkata, West Benghttps://www.linkedin.com/in/debadrita-goswami-68a1293a0al. I build projects, contribute to open source, and write about what I learn.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.debagoswami.tech",
   email: "debagoswami83@gmail.com",
   location: "Kolkata, West Bengal",
@@ -13,7 +13,7 @@ export const siteConfig = {
     github: "https://github.com/debadritax24",
     linkedin: "https://www.linkedin.com/in/debadrita-goswami-68a1293a0",
     instagram: "https://www.instagram.com/_kissesnmartini._",
-    discord: "https://discord.com/channels/@alooo_26",
+    discord: "https://discord.com/users/@alooo_26",
   },
 
   seo: {

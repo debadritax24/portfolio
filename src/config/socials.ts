@@ -25,14 +25,14 @@ export const socialLinks: SocialLink[] = [
   },
   {
     name: "Instagram",
-    href: "https://instagram.com/_kissesnmartini._",
+    href: "https://www.instagram.com/_kissesnmartini._",
     icon: FaInstagram,
     ariaLabel: "Instagram Profile",
     hoverColor: "hover:text-pink-600 dark:hover:text-pink-400",
   },
   {
     name: "Discord",
-    href: "https://discord.com/channels/@alooo_26",
+    href: "https://discord.com/users/@alooo_26",
     icon: FaDiscord,
     ariaLabel: "Discord Profile",
     hoverColor: "hover:text-indigo-600 dark:hover:text-indigo-400",
