@@ -158,7 +158,7 @@ Navigate to `http://localhost:3000` to view the public site, or `http://localhos
 ## 🔗 Quick Links
 
 - **Live Site:** [debagoswami.tech](https://www.debagoswami.tech)
-- **GitHub:** [debagoswami83](https://github.com/debagoswami83)
+- **GitHub:** [debadritax24](https://github.com/debadritax24)
 - **LinkedIn:** [Debadrita Goswami](https://www.linkedin.com/in/debagoswami83/)
 
 ---
