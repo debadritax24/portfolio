@@ -11,9 +11,9 @@ export const siteConfig = {
 
   socialLinks: {
     github: "https://github.com/debadritax24",
-    linkedin: "https://www.linkedin.com/in/DEBADRITA GOSWAMI",
-    instagram: "https://www.instagram.com/DEBADRITA GOSWAMI",
-    discord: "https://discord.com/channels/@debadritax24",
+    linkedin: "https://www.linkedin.com/in/debadrita-goswami-68a1293a0",
+    instagram: "https://www.instagram.com/kissesnmartini.",
+    discord: "https://discord.com/channels/@alooo_26",
   },
 
   seo: {

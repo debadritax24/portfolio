@@ -18,7 +18,7 @@ export const socialLinks: SocialLink[] = [
   },
   {
     name: "LinkedIn",
-    href: "https://www.linkedin.com/in/DEBADRITA GOSWAMI",
+    href: "https://www.linkedin.com/in/debadrita-goswami-68a1293a0",
     icon: FaLinkedin,
     ariaLabel: "LinkedIn Profile",
     hoverColor: "hover:text-blue-600 dark:hover:text-blue-400",
