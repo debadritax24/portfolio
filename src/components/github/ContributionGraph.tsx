@@ -5,11 +5,10 @@ import {
   fetchGitHubContributions,
   normalizeContributionData,
 } from "@/services/github";
-import { siteConfig } from "@/config/site";
+import { githubUsername } from "@/config/site";
 import type {
   ContributionData,
   ContributionDay,
-  ContributionWeek,
 } from "@/types/github";
 
 const scheduleIdle = (callback: () => void) => {
@@ -191,7 +190,7 @@ export default function ContributionGraph() {
 
       const loadContributions = async () => {
         try {
-          const username = siteConfig.socialLinks.github.split("/").filter(Boolean).pop();
+          const username = githubUsername;
           if (!username) throw new Error("GitHub username not configured");
           const raw = await fetchGitHubContributions(username);
           if (!isMounted) return;
@@ -231,7 +230,7 @@ export default function ContributionGraph() {
             <div className="w-max min-w-full">
               {getMonthLabels()}
 
-              <div className="flex gap-[2px]">
+              <div className="flex gap-0.5">
                 {(() => {
                   const maxCount = Math.max(
                     ...contributionData.weeks.flatMap((w) =>
@@ -241,11 +240,11 @@ export default function ContributionGraph() {
                   );
 
                   return contributionData.weeks.map((week, wi) => (
-                    <div key={wi} className="flex flex-col gap-[2px]">
+                    <div key={wi} className="flex flex-col gap-0.5">
                       {week.contributionDays.map((day, di) => (
                         <div
                           key={di}
-                          className={`w-[10px] h-[10px] rounded-[2px] ${getContributionIntensity(
+                          className={`w-2.5 h-2.5 rounded-[2px] ${getContributionIntensity(
                             day.contributionCount,
                             maxCount
                           )} hover:ring-1 hover:ring-slate-400 dark:hover:ring-white transition-all cursor-pointer`}
@@ -277,7 +276,7 @@ export default function ContributionGraph() {
           <div className="flex justify-end items-center mt-3">
             <div className="flex items-center gap-1.5 text-[10px] text-slate-600 dark:text-slate-500">
               <span>Less</span>
-              <div className="flex gap-[3px]">
+              <div className="flex gap-0.75">
                 <div className="w-2.5 h-2.5 bg-[#ebedf0] dark:bg-[#161b22] rounded-[2px]" />
                 <div className="w-2.5 h-2.5 bg-[#9be9a8] dark:bg-[#0e4429] rounded-[2px]" />
                 <div className="w-2.5 h-2.5 bg-[#40c463] dark:bg-[#006d32] rounded-[2px]" />

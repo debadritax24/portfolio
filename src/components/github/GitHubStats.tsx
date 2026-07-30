@@ -6,21 +6,25 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import ContributionGraph from "./ContributionGraph";
 import { fetchGitHubContributions, fetchGitHubUser, fetchGitHubRepos } from "@/services/github";
-import { siteConfig } from "@/config/site";
+import { githubUsername, siteConfig } from "@/config/site";
+
+type GitHubStatsState = {
+  contributions: number;
+  streak: number;
+  repos: number;
+  topLanguage: string;
+};
 
 export default function GitHubStats() {
-  const [stats, setStats] = useState({
-    contributions: "",
-    streak: "",
-    repos: "",
-    topLanguage: ""
-  });
+  const [stats, setStats] = useState<GitHubStatsState | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     async function loadStats() {
       try {
-        const username = siteConfig.socialLinks.github.split("/").filter(Boolean).pop();
+        const username = githubUsername;
         if (!username) throw new Error("GitHub username not configured");
 
         const contribs = await fetchGitHubContributions(username);
@@ -39,51 +43,45 @@ export default function GitHubStats() {
           }
         }
 
-        let reposCount = "";
-        try {
-          const user = await fetchGitHubUser(username);
-          reposCount = user.public_repos?.toString() || "";
-        } catch (err) {
-          console.error("Failed to fetch repo count:", err);
-        }
+        const [user, repos] = await Promise.all([
+          fetchGitHubUser(username),
+          fetchGitHubRepos(username),
+        ]);
 
-        let topLang = "";
-        try {
-          const repos = await fetchGitHubRepos(username);
-          const langs: Record<string, number> = {};
-          repos.forEach((r) => {
-            if (r.language) {
-              langs[r.language] = (langs[r.language] || 0) + 1;
-            }
-          });
-          let maxCount = 0;
-          for (const [lang, count] of Object.entries(langs)) {
-            if (count > maxCount) {
-              maxCount = count;
-              topLang = lang;
-            }
+        const langs: Record<string, number> = {};
+        repos.forEach((repo) => {
+          if (repo.language) {
+            langs[repo.language] = (langs[repo.language] || 0) + 1;
           }
-        } catch (err) {
-          console.error("Failed to fetch top language:", err);
+        });
+
+        let topLang = "No language data";
+        let maxCount = 0;
+        for (const [lang, count] of Object.entries(langs)) {
+          if (count > maxCount) {
+            maxCount = count;
+            topLang = lang;
+          }
         }
 
         if (isMounted) {
           setStats({
-            contributions: contribs?.totalContributions?.toLocaleString() || "",
-            streak: `${streak}`,
-            repos: reposCount,
+            contributions: contribs.totalContributions,
+            streak,
+            repos: user.public_repos,
             topLanguage: topLang
           });
+          setError(null);
         }
       } catch (error) {
         console.error("Failed to load GitHub stats:", error);
         if (isMounted) {
-          setStats({
-            contributions: "",
-            streak: "",
-            repos: "",
-            topLanguage: ""
-          });
+          setError("Failed to load GitHub stats.");
+          setStats(null);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
         }
       }
     }
@@ -92,11 +90,27 @@ export default function GitHubStats() {
   }, []);
 
   const statCards = [
-    { label: "Contributions", value: stats.contributions, icon: Activity, color: "text-slate-900 dark:text-white" },
-    { label: "Current streak", value: `${stats.streak} Days`, icon: Flame, color: "text-slate-900 dark:text-white" },
-    { label: "Repositories", value: stats.repos, icon: Folder, color: "text-slate-900 dark:text-white" },
-    { label: "Top language", value: stats.topLanguage, icon: Terminal, color: "text-blue-600 dark:text-blue-500" },
+    { label: "Contributions", value: stats?.contributions?.toLocaleString() ?? null, icon: Activity, color: "text-slate-900 dark:text-white" },
+    { label: "Current streak", value: stats ? `${stats.streak} Days` : null, icon: Flame, color: "text-slate-900 dark:text-white" },
+    { label: "Repositories", value: stats?.repos?.toLocaleString() ?? null, icon: Folder, color: "text-slate-900 dark:text-white" },
+    { label: "Top language", value: stats?.topLanguage ?? null, icon: Terminal, color: "text-blue-600 dark:text-blue-500" },
   ];
+
+  const renderStatValue = (value: string | number | null) => {
+    if (loading) {
+      return <div className="h-8 w-20 rounded-md bg-slate-200/80 dark:bg-white/10 animate-pulse" />;
+    }
+
+    if (error) {
+      return <span className="text-base font-semibold text-red-500 dark:text-red-400">Unavailable</span>;
+    }
+
+    if (value === "" || value === null || value === undefined) {
+      return "Unavailable";
+    }
+
+    return value;
+  };
 
   return (
     <LazyMotion features={domAnimation}>
@@ -137,22 +151,22 @@ export default function GitHubStats() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.35, delay: 0.1, ease: "easeOut" }}
-            className="relative lg:col-span-8 rounded-3xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-zinc-900/50 flex flex-col transition-all duration-300 overflow-hidden"
+            className="relative lg:col-span-8 rounded-3xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-zinc-900/50 flex flex-col transition-all duration-300 overflow-hidden"
           >
             {/* Editor Chrome Header */}
-            <div className="flex items-center px-4 py-3 border-b border-slate-200 dark:border-white/[0.08] bg-slate-100/50 dark:bg-white/[0.02]">
+            <div className="flex items-center px-4 py-3 border-b border-slate-200 dark:border-white/8 bg-slate-100/50 dark:bg-white/2">
               <div className="flex gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] border border-[#E0443E]" />
                 <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] border border-[#DEA123]" />
                 <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F] border border-[#1AAB29]" />
               </div>
               <div className="flex-1 text-center flex justify-center">
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/60 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.05]">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/60 dark:bg-white/4 border border-slate-200 dark:border-white/5">
                   <GitBranch className="w-3 h-3 text-zinc-500" />
                   <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 font-mono tracking-wide">activity.sh</span>
                 </div>
               </div>
-              <div className="w-[42px]" /> {/* Spacer to balance the dots */}
+              <div className="w-10.5" /> {/* Spacer to balance the dots */}
             </div>
 
             {/* Graph Content */}
@@ -168,6 +182,17 @@ export default function GitHubStats() {
 
           {/* Metrics Grid */}
           <div className="lg:col-span-4 grid grid-cols-2 gap-3 sm:gap-4 h-full content-start">
+            {error ? (
+              <m.div
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="col-span-2 rounded-3xl border border-rose-200 dark:border-rose-500/20 bg-rose-50/80 dark:bg-rose-500/5 p-4 sm:p-5 text-sm text-rose-700 dark:text-rose-300"
+              >
+                {error}
+              </m.div>
+            ) : null}
             {statCards.map((stat, i) => {
               const Icon = stat.icon;
               return (
@@ -177,14 +202,14 @@ export default function GitHubStats() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: 0.15 + (i * 0.05), ease: "easeOut" }}
-                  className="flex flex-col justify-between p-4 sm:p-5 rounded-3xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-zinc-900 transition-all duration-300 hover:border-slate-300 dark:hover:border-white/20 hover:translate-y-[-2px] aspect-square sm:aspect-auto sm:h-full"
+                  className="flex flex-col justify-between p-4 sm:p-5 rounded-3xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-zinc-900 transition-all duration-300 hover:border-slate-300 dark:hover:border-white/20 hover:-translate-y-0.5 aspect-square sm:aspect-auto sm:h-full"
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <Icon className="w-4 h-4 text-zinc-500 shrink-0" strokeWidth={2} />
                     <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{stat.label}</span>
                   </div>
                   <div className={`text-2xl sm:text-3xl font-bold tracking-tight ${stat.color}`}>
-                    {stat.value}
+                    {renderStatValue(stat.value)}
                   </div>
                 </m.div>
               );

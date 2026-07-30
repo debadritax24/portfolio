@@ -157,4 +157,9 @@ export const siteConfig = {
   },
 } as const;
 
+export const githubUsername = siteConfig.socialLinks.github
+  .split("/")
+  .filter(Boolean)
+  .pop() ?? "";
+
 export type SiteConfig = typeof siteConfig;
