@@ -58,7 +58,7 @@ export async function fetchGitHubUser(username: string): Promise<GitHubUser> {
     return userCache.get(username)!;
   }
   
-  const promise = fetch(`https://api.github.com/users/${username}`).then(res => {
+  const promise = fetch(`/api/github/user/${username}`).then(res => {
     if (!res.ok) throw new Error("Failed to fetch user");
     return res.json();
   }).catch(err => {
@@ -75,7 +75,7 @@ export async function fetchGitHubRepos(username: string): Promise<GitHubRepo[]> 
     return reposCache.get(username)!;
   }
   
-  const promise = fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`).then(res => {
+  const promise = fetch(`/api/github/repos/${username}`).then(res => {
     if (!res.ok) throw new Error("Failed to fetch repos");
     return res.json();
   }).catch(err => {

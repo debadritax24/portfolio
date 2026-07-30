@@ -43,10 +43,16 @@ export default function GitHubStats() {
           }
         }
 
-        const [user, repos] = await Promise.all([
-          fetchGitHubUser(username),
-          fetchGitHubRepos(username),
-        ]);
+        let repos: Awaited<ReturnType<typeof fetchGitHubRepos>> = [];
+        let user: Awaited<ReturnType<typeof fetchGitHubUser>> | null = null;
+        try {
+          [user, repos] = await Promise.all([
+            fetchGitHubUser(username),
+            fetchGitHubRepos(username),
+          ]);
+        } catch {
+          console.warn("Failed to fetch user/repos data, continuing with contributions only");
+        }
 
         const langs: Record<string, number> = {};
         repos.forEach((repo) => {
@@ -68,7 +74,7 @@ export default function GitHubStats() {
           setStats({
             contributions: contribs.totalContributions,
             streak,
-            repos: user.public_repos,
+            repos: user?.public_repos ?? 0,
             topLanguage: topLang
           });
           setError(null);
