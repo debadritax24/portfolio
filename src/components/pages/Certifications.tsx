@@ -159,8 +159,8 @@ export default function CertificationsPage() {
                     <div className="mt-2 pt-2 border-t border-dashed border-slate-200 dark:border-[#262626] text-center">
                         <p className="text-base font-medium text-slate-600 dark:text-slate-400 ">
                             For more details, view my{" "}
-                            <Link
-                                href="https://linkedin.com/in/debagoswami83"
+                            <Linkdebadritax24
+                                href="https://www.linkedin.com/in/debadrita-goswami-68a1293a0"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-bold text-slate-900 dark:text-white hover:underline transition-all inline-flex items-center gap-1 hover-glitch"

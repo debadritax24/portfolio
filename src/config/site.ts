@@ -5,7 +5,7 @@ export const siteConfig = {
   description:
     "2nd Year CS Engineering Student at Kolkata, West Bengal. I build projects, contribute to open source, and write about what I learn.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.debagoswami.tech",
-  email: "debagoswami83@gmail.com",
+  email:"goswamidebadrita222@gmail.com",
   location: "Kolkata, West Bengal",
   resumeUrl: "/resume",
 
@@ -82,8 +82,8 @@ export const siteConfig = {
 
   twitter: {
     card: "summary_large_image" as const,
-    creator: "@debagoswami83",
-    site: "@debagoswami83",
+    creator: "debadritagoswami222",
+    site: "@debadritagoswami222",
   },
 
   manifest: {
@@ -101,7 +101,7 @@ export const siteConfig = {
     person: {
       "@type": "Person",
       name: "Debadrita Goswami",
-      alternateName: ["Debadrita", "debagoswami83", "Goswami"],
+      alternateName: ["Debadrita", "debadritax24", "Goswami"],
       url: "https://www.debagoswami.tech",
       image: "https://www.debagoswami.tech/og.png",
       description:

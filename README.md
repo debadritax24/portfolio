@@ -113,7 +113,7 @@ If you encounter a bug or wish to request a feature:
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/debagoswami83/portfolio.git
+git clone https://github.com/debadritax24/portfolio.git
 cd portfolio
 npm install
 ```
@@ -159,7 +159,7 @@ Navigate to `http://localhost:3000` to view the public site, or `http://localhos
 
 - **Live Site:** [debagoswami.tech](https://www.debagoswami.tech)
 - **GitHub:** [debadritax24](https://github.com/debadritax24)
-- **LinkedIn:** [Debadrita Goswami](https://www.linkedin.com/in/debagoswami83/)
+- **LinkedIn:** [Debadrita Goswami](https://www.linkedin.com/in/debadrita-goswami-68a1293a0/)
 
 ---
 *Built with ❤️ by Debadrita Goswami.*
