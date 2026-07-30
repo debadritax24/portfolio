@@ -7,6 +7,7 @@ import ThemeToggle from "../layout/ThemeToggle";
 import { useState, useEffect } from "react";
 import { getCertifications } from "@/lib/data";
 import Link from "next/link";
+import { siteConfig } from "@/config/site";
 
 export default function CertificationsPage() {
     const [certifications, setCertifications] = useState<any[]>([]);
@@ -159,8 +160,8 @@ export default function CertificationsPage() {
                     <div className="mt-2 pt-2 border-t border-dashed border-slate-200 dark:border-[#262626] text-center">
                         <p className="text-base font-medium text-slate-600 dark:text-slate-400 ">
                             For more details, view my{" "}
-                            <Linkdebadritax24
-                                href="https://www.linkedin.com/in/debadrita-goswami-68a1293a0"
+                            <Link
+                                href={siteConfig.socialLinks.linkedin}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-bold text-slate-900 dark:text-white hover:underline transition-all inline-flex items-center gap-1 hover-glitch"
