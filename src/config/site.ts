@@ -10,10 +10,10 @@ export const siteConfig = {
   resumeUrl: "/resume",
 
   socialLinks: {
-    github: "https://github.com/debagoswami83-hashtag",
-    linkedin: "https://www.linkedin.com/in/debagoswami83/",
-    instagram: "https://www.instagram.com/debagoswami.tech/",
-    discord: "https://discord.com/channels/@debagoswamiali8642",
+    github: "https://github.com/debadritax24",
+    linkedin: "https://www.linkedin.com/in/debadritax24/",
+    instagram: "https://www.instagram.com/debadritax24",
+    discord: "https://discord.com/channels/@debadritax24",
   },
 
   seo: {
