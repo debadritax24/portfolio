@@ -12,7 +12,7 @@ export const siteConfig = {
   socialLinks: {
     github: "https://github.com/debadritax24",
     linkedin: "https://www.linkedin.com/in/debadrita-goswami-68a1293a0",
-    instagram: "https://www.instagram.com/kissesnmartini.",
+    instagram: "https://www.instagram.com/_kissesnmartini._",
     discord: "https://discord.com/channels/@alooo_26",
   },
 

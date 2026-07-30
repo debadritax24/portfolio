@@ -25,7 +25,7 @@ export const socialLinks: SocialLink[] = [
   },
   {
     name: "Instagram",
-    href: "https://instagram.com/kissesnmartini.",
+    href: "https://instagram.com/_kissesnmartini._",
     icon: FaInstagram,
     ariaLabel: "Instagram Profile",
     hoverColor: "hover:text-pink-600 dark:hover:text-pink-400",
