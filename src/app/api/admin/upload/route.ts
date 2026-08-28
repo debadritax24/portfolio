@@ -32,6 +32,8 @@ export const POST = withAuth(async (req: NextRequest) => {
     }, 201);
   } catch (error) {
     console.error("[Admin/Upload]", error);
-    return apiError("Upload failed", 500);
+    const message =
+      error instanceof Error ? error.message : "Upload failed";
+    return apiError(message, 500);
   }
 });
