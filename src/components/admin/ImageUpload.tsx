@@ -43,15 +43,17 @@ export default function ImageUpload({
       });
 
       if (!res.ok) {
-        throw new Error("Upload failed");
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error || `Upload failed (${res.status})`);
       }
 
       const { data } = await res.json();
       onChange(data.url, data.pathname);
       toast.success("Image uploaded successfully");
     } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Failed to upload image");
+      const message = error instanceof Error ? error.message : "Failed to upload image";
+      console.error("Upload error:", message);
+      toast.error(message);
     } finally {
       setUploading(false);
     }

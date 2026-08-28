@@ -80,6 +80,7 @@ export async function middleware(request: NextRequest) {
     "https://api.databuddy.cc",
     "https://basket.databuddy.cc",
     "https://vitals.vercel-insights.com",
+    "https://blob.vercel-storage.com",
   ];
 
   if (env !== "production") {
