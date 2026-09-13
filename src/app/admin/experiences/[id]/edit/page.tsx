@@ -22,7 +22,11 @@ export default function EditExperiencePage() {
           return;
         }
         const data = await res.json();
-        setExp(data.data || null);
+        const expData = data.data;
+        if (expData) {
+          expData.current = !expData.endDate;
+        }
+        setExp(expData || null);
       } catch {
         setExp(null);
       } finally {

@@ -36,24 +36,24 @@ export const POST = withAuth(async (req: NextRequest) => {
         400
       );
     }
-    const data = parsed.data;
-    const slug = data.slug || slugify(`${data.company}-${data.role}`);
+    const { current: _current, ...rest } = parsed.data;
+    const slug = rest.slug || slugify(`${rest.company}-${rest.role}`);
     const exp = await createExperience({
       slug,
-      company: data.company,
-      role: data.role,
-      type: data.type ?? "Full-time",
-      location: data.location,
-      period: data.period,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      summary: data.summary,
-      imageUrl: data.imageUrl ?? null,
-      imagePathname: data.imagePathname ?? null,
-      achievements: data.achievements ?? [],
-      tags: data.tags ?? [],
-      published: data.published ?? true,
-      featured: data.featured ?? false,
+      company: rest.company,
+      role: rest.role,
+      type: rest.type ?? "Full-time",
+      location: rest.location ?? "",
+      period: rest.period ?? "",
+      startDate: rest.startDate,
+      endDate: rest.endDate ?? "",
+      summary: rest.summary ?? "",
+      imageUrl: rest.imageUrl ?? null,
+      imagePathname: rest.imagePathname ?? null,
+      achievements: rest.achievements ?? [],
+      tags: rest.tags ?? [],
+      published: rest.published ?? true,
+      featured: rest.featured ?? false,
     });
     return apiSuccess(exp, 201);
   } catch (error) {
@@ -72,7 +72,7 @@ export const PUT = withAuth(async (req: NextRequest) => {
         400
       );
     }
-    const { id, ...data } = parsed.data;
+    const { id, current: _current, ...data } = parsed.data;
     if (data.company && data.role && !data.slug) {
       (data as Record<string, unknown>).slug = slugify(
         `${data.company}-${data.role}`

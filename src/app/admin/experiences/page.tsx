@@ -16,7 +16,7 @@ type Experience = {
   role: string;
   slug: string;
   published: boolean;
-  current: boolean;
+  endDate: string;
   createdAt: string;
 };
 
@@ -102,7 +102,7 @@ export default function AdminExperiencesPage() {
       key: "current",
       label: "Current",
       render: (item: Experience) =>
-        item.current ? (
+        !item.endDate ? (
           <span className="px-2 py-0.5 rounded text-xs font-medium bg-green-900/30 text-green-400">
             Current
           </span>

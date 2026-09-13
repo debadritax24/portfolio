@@ -35,7 +35,8 @@ export const PUT = withAuth(async (req: NextRequest) => {
         400
       );
     }
-    const exp = await updateExperience(id, parsed.data);
+    const { current: _current, ...data } = parsed.data;
+    const exp = await updateExperience(id, data);
     return apiSuccess(exp);
   } catch (error) {
     console.error("[Admin/Experiences/[id]/PUT]", error);
