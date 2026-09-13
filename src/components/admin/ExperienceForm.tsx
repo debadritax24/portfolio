@@ -9,21 +9,36 @@ type ExpFormData = {
   company: string;
   role: string;
   slug: string;
-  description: string;
+  summary: string;
   startDate: string;
   endDate: string;
   location: string;
   imageUrl: string;
   imagePathname: string;
-  techStack: string;
+  tags: string;
+  achievements: string;
+  type: string;
   current: boolean;
   published: boolean;
+  featured: boolean;
 };
 
 type ExperienceFormProps = {
   initialData?: Record<string, unknown>;
   mode: "create" | "edit";
 };
+
+function generatePeriod(startDate: string, endDate: string, current: boolean): string {
+  if (!startDate) return "";
+  const formatPeriod = (date: string) => {
+    const [year, month] = date.split("-");
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return month ? `${monthNames[parseInt(month, 10) - 1]} ${year}` : year;
+  };
+  const start = formatPeriod(startDate);
+  const end = current ? "Present" : endDate ? formatPeriod(endDate) : "";
+  return end ? `${start} — ${end}` : start;
+}
 
 export default function ExperienceForm({
   initialData,
@@ -35,40 +50,53 @@ export default function ExperienceForm({
     company: (initialData?.company as string) || "",
     role: (initialData?.role as string) || "",
     slug: (initialData?.slug as string) || "",
-    description: (initialData?.description as string) || "",
+    summary: (initialData?.summary as string) || "",
     startDate: (initialData?.startDate as string) || "",
     endDate: (initialData?.endDate as string) || "",
     location: (initialData?.location as string) || "",
     imageUrl: (initialData?.imageUrl as string) || "",
     imagePathname: (initialData?.imagePathname as string) || "",
-    techStack: Array.isArray(initialData?.techStack)
-      ? (initialData.techStack as string[]).join(", ")
+    tags: Array.isArray(initialData?.tags)
+      ? (initialData.tags as string[]).join(", ")
       : "",
-    current: (initialData?.current as boolean) ?? false,
+    achievements: Array.isArray(initialData?.achievements)
+      ? (initialData.achievements as string[]).join("\n")
+      : "",
+    type: (initialData?.type as string) || "Full-time",
+    current: !(initialData?.endDate),
     published: (initialData?.published as boolean) ?? true,
+    featured: (initialData?.featured as boolean) ?? false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      const period = generatePeriod(form.startDate, form.endDate, form.current);
       const body = {
         ...(mode === "edit" ? { id: initialData?.id } : {}),
         company: form.company,
         role: form.role,
         slug: form.slug || undefined,
-        description: form.description,
+        summary: form.summary,
         startDate: form.startDate,
-        endDate: form.current ? null : form.endDate || null,
-        location: form.location || null,
+        endDate: form.current ? "" : form.endDate,
+        location: form.location,
         imageUrl: form.imageUrl || null,
         imagePathname: form.imagePathname || null,
-        techStack: form.techStack
+        tags: form.tags
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean),
+        achievements: form.achievements
+          .split("\n")
+          .map((a) => a.trim())
+          .filter(Boolean),
+        type: form.type,
+        period,
         current: form.current,
         published: form.published,
+        featured: form.featured,
       };
 
       const res = await fetch("/api/admin/experiences", {
@@ -139,11 +167,11 @@ export default function ExperienceForm({
 
       <div>
         <label className="block text-sm font-medium text-slate-400 mb-1">
-          Description
+          Summary
         </label>
         <textarea
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          value={form.summary}
+          onChange={(e) => setForm({ ...form, summary: e.target.value })}
           className="w-full px-3 py-2 rounded-lg bg-[#0e0e0e] border border-[#1e293b] text-white text-sm focus:outline-none focus:border-blue-500"
           rows={4}
         />
@@ -193,6 +221,23 @@ export default function ExperienceForm({
 
       <div>
         <label className="block text-sm font-medium text-slate-400 mb-1">
+          Employment Type
+        </label>
+        <select
+          value={form.type}
+          onChange={(e) => setForm({ ...form, type: e.target.value })}
+          className="w-full px-3 py-2 rounded-lg bg-[#0e0e0e] border border-[#1e293b] text-white text-sm focus:outline-none focus:border-blue-500"
+        >
+          <option value="Full-time">Full-time</option>
+          <option value="Part-time">Part-time</option>
+          <option value="Contract">Contract</option>
+          <option value="Freelance">Freelance</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-400 mb-1">
           Company Logo / Image
         </label>
         <ImageUpload
@@ -210,14 +255,27 @@ export default function ExperienceForm({
         </label>
         <input
           type="text"
-          value={form.techStack}
-          onChange={(e) => setForm({ ...form, techStack: e.target.value })}
+          value={form.tags}
+          onChange={(e) => setForm({ ...form, tags: e.target.value })}
           className="w-full px-3 py-2 rounded-lg bg-[#0e0e0e] border border-[#1e293b] text-white text-sm focus:outline-none focus:border-blue-500"
           placeholder="React, Node.js, TypeScript"
         />
       </div>
 
-      <div className="flex gap-6">
+      <div>
+        <label className="block text-sm font-medium text-slate-400 mb-1">
+          Achievements (one per line)
+        </label>
+        <textarea
+          value={form.achievements}
+          onChange={(e) => setForm({ ...form, achievements: e.target.value })}
+          className="w-full px-3 py-2 rounded-lg bg-[#0e0e0e] border border-[#1e293b] text-white text-sm focus:outline-none focus:border-blue-500"
+          rows={4}
+          placeholder="Led migration reducing bundle size by 40%&#10;Mentored 3 junior developers&#10;Implemented CI/CD pipeline"
+        />
+      </div>
+
+      <div className="flex gap-6 flex-wrap">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
@@ -237,6 +295,17 @@ export default function ExperienceForm({
             className="w-4 h-4 rounded border-[#1e293b] bg-[#0e0e0e] text-blue-500 focus:ring-blue-500"
           />
           <span className="text-sm text-slate-300">Published</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.featured}
+            onChange={(e) =>
+              setForm({ ...form, featured: e.target.checked })
+            }
+            className="w-4 h-4 rounded border-[#1e293b] bg-[#0e0e0e] text-blue-500 focus:ring-blue-500"
+          />
+          <span className="text-sm text-slate-300">Featured</span>
         </label>
       </div>
 

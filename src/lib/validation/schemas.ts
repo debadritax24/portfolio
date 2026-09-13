@@ -87,17 +87,18 @@ export const experienceCreateSchema = z.object({
   company: z.string().min(1, "Company is required"),
   role: z.string().min(1, "Role is required"),
   type: z.string().optional().default("Full-time"),
-  location: z.string().min(1, "Location is required"),
-  period: z.string().min(1, "Period is required"),
+  location: z.string().optional().default(""),
+  period: z.string().optional().default(""),
   startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().min(1, "End date is required"),
-  summary: z.string().min(1, "Summary is required"),
+  endDate: z.string().optional().default(""),
+  summary: z.string().optional().default(""),
   imageUrl: z.string().optional().nullable(),
   imagePathname: z.string().optional().nullable(),
   achievements: z.array(z.string()).optional().default([]),
   tags: z.array(z.string()).optional().default([]),
   published: z.boolean().optional().default(true),
   featured: z.boolean().optional().default(false),
+  current: z.boolean().optional().default(false),
 });
 
 export const experienceUpdateSchema = experienceCreateSchema.partial().extend({
