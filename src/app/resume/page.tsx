@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ExternalLink, Download, Maximize, Heart } from "lucide-react";
+import { ExternalLink, Download, Maximize, Heart, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -24,22 +24,21 @@ export default function ResumePage() {
   return (
     <main className="min-h-screen bg-[#000000] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden">
       {/* Top Navigation */}
-      <nav className="w-full px-6 py-5 flex items-center justify-between">
-        <Link href="/" className="flex items-center group">
-          {/* Logo representation - mimicking the T from screenshot but adapted */}
-          <div className="w-8 h-8 flex items-center justify-center font-bold text-xl group-hover:opacity-80 transition-opacity">
-          </div>
+      <nav className="w-full px-6 py-5 flex items-center justify-between max-w-[1200px] mx-auto">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors group"
+        >
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          <span>Back to Home</span>
         </Link>
       </nav>
 
-      <div className="max-w-[1200px] mx-auto px-6 pt-4 pb-12">
+      <div className="max-w-[1200px] mx-auto px-6 pt-2 pb-12">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
-            <h1
-              className="text-5xl md:text-[4rem] font-black tracking-tight mb-3 text-white leading-none"
-
-            >
+            <h1 className="text-5xl md:text-[4rem] font-black tracking-tight mb-3 text-white leading-none">
               Resume
             </h1>
             <p className="text-gray-400 text-sm md:text-[15px] font-medium tracking-wide">
@@ -66,7 +65,7 @@ export default function ResumePage() {
             </a>
             <a
               href="/Resume.pdf"
-              download="Resume.pdf"
+              download="Debadrita_Goswami_Resume.pdf"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-white text-black font-bold text-xs transition-colors duration-300 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
             >
               <Download className="w-3.5 h-3.5" />
