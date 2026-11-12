@@ -6,9 +6,11 @@ import {
   deleteProject,
 } from "@/lib/db/queries/projects";
 import { projectUpdateSchema } from "@/lib/validation/schemas";
+import { deleteImage } from "@/lib/blob";
 import { apiSuccess, apiError } from "@/services/api";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export const GET = withAuth(async (req: NextRequest) => {
   try {
@@ -49,6 +51,10 @@ export const DELETE = withAuth(async (req: NextRequest) => {
   try {
     const url = new URL(req.url);
     const id = url.pathname.split("/").pop()!;
+    const project = await getProjectById(id);
+    if (project?.imageUrl) {
+      await deleteImage(project.imageUrl);
+    }
     await deleteProject(id);
     return apiSuccess({ deleted: true });
   } catch (error) {

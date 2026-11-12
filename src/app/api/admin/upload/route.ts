@@ -4,6 +4,7 @@ import { uploadImage } from "@/lib/blob";
 import { apiSuccess, apiError } from "@/services/api";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 /**
  * POST /api/admin/upload — Upload image to Vercel Blob.

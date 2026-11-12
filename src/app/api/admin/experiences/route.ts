@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/auth/middleware";
 import {
   getExperiences,
+  getExperienceById,
+  getExperienceBySlug,
   createExperience,
   updateExperience,
   deleteExperience,
@@ -11,10 +13,12 @@ import {
   experienceUpdateSchema,
   deleteSchema,
 } from "@/lib/validation/schemas";
+import { deleteImage } from "@/lib/blob";
 import { apiSuccess, apiError } from "@/services/api";
 import { slugify } from "@/lib/utils";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export const GET = withAuth(async (req: NextRequest) => {
   try {
@@ -37,7 +41,14 @@ export const POST = withAuth(async (req: NextRequest) => {
       );
     }
     const { current: _current, ...rest } = parsed.data;
-    const slug = rest.slug || slugify(`${rest.company}-${rest.role}`);
+    let slug = rest.slug || slugify(`${rest.company}-${rest.role}`);
+    if (!slug) {
+      slug = `exp-${Date.now()}`;
+    }
+    const existing = await getExperienceBySlug(slug);
+    if (existing) {
+      slug = `${slug}-${Date.now().toString(36)}`;
+    }
     const exp = await createExperience({
       slug,
       company: rest.company,
@@ -92,6 +103,10 @@ export const DELETE = withAuth(async (req: NextRequest) => {
     const parsed = deleteSchema.safeParse(body);
     if (!parsed.success) {
       return apiError("Invalid ID", 400);
+    }
+    const exp = await getExperienceById(parsed.data.id);
+    if (exp?.imageUrl) {
+      await deleteImage(exp.imageUrl);
     }
     await deleteExperience(parsed.data.id);
     return apiSuccess({ deleted: true });

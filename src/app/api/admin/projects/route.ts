@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/auth/middleware";
 import {
   getProjects,
+  getProjectById,
+  getProjectBySlug,
   createProject,
   updateProject,
   deleteProject,
@@ -11,10 +13,12 @@ import {
   projectUpdateSchema,
   deleteSchema,
 } from "@/lib/validation/schemas";
+import { deleteImage } from "@/lib/blob";
 import { apiSuccess, apiError } from "@/services/api";
 import { slugify } from "@/lib/utils";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export const GET = withAuth(async (req: NextRequest) => {
   try {
@@ -37,7 +41,14 @@ export const POST = withAuth(async (req: NextRequest) => {
       );
     }
     const data = parsed.data;
-    const slug = data.slug || slugify(data.title);
+    let slug = data.slug || slugify(data.title);
+    if (!slug) {
+      slug = `proj-${Date.now()}`;
+    }
+    const existing = await getProjectBySlug(slug);
+    if (existing) {
+      slug = `${slug}-${Date.now().toString(36)}`;
+    }
     const project = await createProject({
       title: data.title,
       slug,
@@ -99,10 +110,16 @@ export const DELETE = withAuth(async (req: NextRequest) => {
     if (!parsed.success) {
       return apiError("Invalid ID", 400);
     }
+    const project = await getProjectById(parsed.data.id);
+    if (project?.imageUrl) {
+      await deleteImage(project.imageUrl);
+    }
     await deleteProject(parsed.data.id);
     return apiSuccess({ deleted: true });
   } catch (error) {
     console.error("[Admin/Projects/DELETE]", error);
-    return apiError("Failed to delete project", 500);
+    const message =
+      error instanceof Error ? error.message : "Failed to delete project";
+    return apiError(message, 500);
   }
 });

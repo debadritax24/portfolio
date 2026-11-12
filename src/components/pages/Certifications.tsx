@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowUpRight, Award, Calendar } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Award, Calendar, FileText } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import ThemeToggle from "../layout/ThemeToggle";
 import { useState, useEffect } from "react";
@@ -82,12 +82,19 @@ export default function CertificationsPage() {
                                 <div className="relative h-40 bg-gray-50 dark:bg-[#111] border-b border-gray-100 dark:border-[#222] overflow-hidden">
                                     <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-600">
                                         {(cert.imageUrl || (cert as any).image) && ((cert.imageUrl || (cert as any).image || "").startsWith("http") || (cert.imageUrl || (cert as any).image || "").startsWith("/")) ? (
-                                            <img
-                                                src={cert.imageUrl || (cert as any).image}
-                                                alt={cert.title}
-                                                className="w-full h-full object-cover group-hover:scale-105"
-                                                style={{ transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1)' }}
-                                            />
+                                            (cert.imageUrl || (cert as any).image || "").toLowerCase().includes(".pdf") ? (
+                                                <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-blue-500/5 text-blue-500">
+                                                    <FileText className="w-10 h-10 mb-1 opacity-80" />
+                                                    <span className="text-[11px] font-semibold text-slate-400">PDF Certificate</span>
+                                                </div>
+                                            ) : (
+                                                <img
+                                                    src={cert.imageUrl || (cert as any).image}
+                                                    alt={cert.title}
+                                                    className="w-full h-full object-cover group-hover:scale-105"
+                                                    style={{ transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1)' }}
+                                                />
+                                            )
                                         ) : (
                                             <span className="text-4xl font-bold text-slate-400 dark:text-slate-500 ">
                                                 {cert.title.charAt(0)}

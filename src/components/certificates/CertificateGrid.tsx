@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight, Award, Calendar, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Award, Calendar, ShieldCheck, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getCertifications } from "@/lib/data";
 import Link from "next/link";
@@ -50,11 +50,18 @@ export default function CertificateGrid({ initialData }: { initialData?: Certifi
             {/* Certificate Image */}
             <div className="sm:w-48 h-32 sm:h-auto bg-slate-200 dark:bg-[#0e0e0e] flex items-center justify-center relative overflow-hidden border-b sm:border-b-0 sm:border-r border-slate-200 dark:border-white/10 shrink-0">
               {cert.imageUrl ? (
-                <img
-                  src={cert.imageUrl}
-                  alt={cert.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+                cert.imageUrl.toLowerCase().includes(".pdf") ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors">
+                    <FileText className="w-10 h-10 mb-2 text-blue-500 opacity-80" />
+                    <span className="text-[10px] uppercase tracking-widest font-semibold text-slate-400">PDF Certificate</span>
+                  </div>
+                ) : (
+                  <img
+                    src={cert.imageUrl}
+                    alt={cert.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                )
               ) : (
                 <div className="flex flex-col items-center justify-center p-6 text-slate-400 dark:text-slate-500">
                   <ShieldCheck className="w-10 h-10 mb-2 opacity-50" />

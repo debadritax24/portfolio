@@ -140,11 +140,12 @@ export default function CertificationForm({
 
       <div>
         <label className="block text-sm font-medium text-slate-400 mb-1">
-          Certificate Image
+          Certificate Image or Document (PDF / Image)
         </label>
         <ImageUpload
           value={form.imageUrl}
           folder="certifications"
+          accept="image/*,.pdf,application/pdf"
           onChange={(url, pathname) =>
             setForm({ ...form, imageUrl: url, imagePathname: pathname || "" })
           }
@@ -157,12 +158,13 @@ export default function CertificationForm({
             Credential URL
           </label>
           <input
-            type="url"
+            type="text"
             value={form.credentialUrl}
             onChange={(e) =>
               setForm({ ...form, credentialUrl: e.target.value })
             }
             className="w-full px-3 py-2 rounded-lg bg-[#0e0e0e] border border-[#1e293b] text-white text-sm focus:outline-none focus:border-blue-500"
+            placeholder="https://... or #"
           />
         </div>
         <div>

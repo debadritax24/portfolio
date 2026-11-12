@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowUpRight, Award, Calendar } from "lucide-react";
+import { ArrowUpRight, Award, Calendar, FileText, ExternalLink } from "lucide-react";
 import { getCertifications, getCertificationBySlug } from "@/lib/data";
 import PageTopBar from "@/components/ui/PageTopBar";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -124,14 +124,39 @@ export default async function CertificationDetail({
           <div className="w-full h-px bg-slate-200 dark:bg-[#333] mb-8" />
 
           {certification.imageUrl && (
-            <div className="relative w-full h-48 sm:h-60 rounded-xl overflow-hidden border border-slate-200 dark:border-[#2A2A2A] bg-slate-50 dark:bg-[#111] mb-8">
-              <img
-                src={certification.imageUrl}
-                alt={`${certification.title} certification image`}
-                className="w-full h-full object-contain p-6"
-                loading="lazy"
-              />
-            </div>
+            certification.imageUrl.toLowerCase().includes(".pdf") ? (
+              <div className="relative w-full p-6 rounded-xl border border-slate-200 dark:border-[#2A2A2A] bg-slate-50 dark:bg-[#111] mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-lg bg-blue-500/10 text-blue-500">
+                    <FileText className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                      Official Certificate Document
+                    </h3>
+                    <p className="text-xs text-slate-500">PDF Document</p>
+                  </div>
+                </div>
+                <a
+                  href={certification.imageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  View / Download PDF
+                </a>
+              </div>
+            ) : (
+              <div className="relative w-full h-48 sm:h-60 rounded-xl overflow-hidden border border-slate-200 dark:border-[#2A2A2A] bg-slate-50 dark:bg-[#111] mb-8">
+                <img
+                  src={certification.imageUrl}
+                  alt={`${certification.title} certification image`}
+                  className="w-full h-full object-contain p-6"
+                  loading="lazy"
+                />
+              </div>
+            )
           )}
 
           <header className="mb-8">
